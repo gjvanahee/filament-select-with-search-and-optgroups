@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -17,28 +18,51 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
-
+    protected static ?string $recordTitleAttribute = 'name';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static function search(string $modelName, string $search): array
+    {
+        return $modelName::where('name', 'like', "%{$search}%")
+            ->limit(3)
+            ->get()
+            ->mapWithKeys(fn ($model) => [
+                "$modelName.$model->id" => $model->name,
+            ])
+            ->toArray();
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\ViewField::make('choices')
+                    ->view('choices'),
                 Forms\Components\Select::make('name')
-                ->label('Name')
-                ->searchable()
-                ->getSearchResultsUsing(fn (string $search) => [
-                    'user' => User::where('name', 'like', "%{$search}%")->limit(5)->pluck('name', 'id')->toArray(),
-                    'other' => OtherModel::where('name', 'like', "%{$search}%")->limit(5)->pluck('name', 'id')->toArray(),
-                ])
+                    ->label('Name')
+                    ->searchable()
+
+                    // ->options([
+                    //     'user' => self::search(User::class, 'ba'),
+                    //     'other' => self::search(OtherModel::class, 'ba'),
+                    // ])
+
+                    ->getOptionLabelUsing(function ($value): ?string {
+                        [$modelName, $modelId] = explode('.', $value);
+                        return $modelName::find($modelId)?->name;
+                    })
+                    ->getSearchResultsUsing(fn (string $search) => [
+                        'user' => self::search(User::class, $search),
+                        'other' => self::search(OtherModel::class, $search),
+                    ])
             ]);
-    }
+   }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                //
+                TextColumn::make('name')
             ])
             ->filters([
                 //
