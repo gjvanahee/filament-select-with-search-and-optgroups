@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\OtherModel;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -26,17 +27,9 @@ class UserResource extends Resource
                 Forms\Components\Select::make('name')
                 ->label('Name')
                 ->searchable()
-                ->getSearchResultsUsing(fn () => [
-                    'option group 1' => [
-                        'group1.1' => 'option 1',
-                        'group1.2' => 'option 2',
-                        'group1.3' => 'option 3',
-                    ],
-                    'option group 2' => [
-                        'group2.1' => 'option 1',
-                        'group2.2' => 'option 2',
-                        'group2.3' => 'option 3',
-                    ],
+                ->getSearchResultsUsing(fn (string $search) => [
+                    'user' => User::where('name', 'like', "%{$search}%")->limit(5)->pluck('name', 'id')->toArray(),
+                    'other' => OtherModel::where('name', 'like', "%{$search}%")->limit(5)->pluck('name', 'id')->toArray(),
                 ])
             ]);
     }
