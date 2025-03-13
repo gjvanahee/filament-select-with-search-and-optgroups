@@ -10,8 +10,8 @@
                   choices: [
                     { value: 'Child One', label: 'Searched Child One' },
                     { value: 'Child Two', label: 'Searched Child Two' },
-                    { value: 'Child Three', label: 'Searched Child Three' },
-                  ],
+                    { value: 'Child Three', label: 'Searched Child Three' }
+                  ]
                 },
                 {
                   label: 'Group two',
@@ -19,8 +19,8 @@
                   choices: [
                     { value: 'Child Four', label: 'Searched Child Four' },
                     { value: 'Child Five', label: 'Searched Child Five' },
-                    { value: 'Child Six', label: 'Searched Child Six' },
-                  ],
+                    { value: 'Child Six', label: 'Searched Child Six' }
+                  ]
                 }
               ],
               'value',

@@ -35,11 +35,24 @@ class UserResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(1)
             ->schema([
                 Forms\Components\ViewField::make('choices')
-                    ->view('choices'),
-                Forms\Components\Select::make('name')
-                    ->label('Name')
+                    ->view('Choices'),
+                Forms\Components\Select::make('Hybrid')
+                    ->view('hybrid')
+                    ->label('Hybrid')
+                    ->searchable()
+                    ->getOptionLabelUsing(function ($value): ?string {
+                        [$modelName, $modelId] = explode('.', $value);
+                        return $modelName::find($modelId)?->name;
+                    })
+                    ->getSearchResultsUsing(fn (string $search) => [
+                        'user' => self::search(User::class, $search),
+                        'other' => self::search(OtherModel::class, $search),
+                    ]),
+                Forms\Components\Select::make('Filament')
+                    ->label('Filament')
                     ->searchable()
 
                     // ->options([
